@@ -79,11 +79,45 @@ header .hrow{display:flex;align-items:center;gap:10px}
 .shwrap{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:10px}
 .shpos{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 12px;break-inside:avoid}
 .shpos h3{margin:0 0 4px;font-size:13px;color:var(--gold);text-transform:uppercase;letter-spacing:.5px;display:flex;justify-content:space-between;align-items:baseline}
+#shbody .shpos{cursor:grab}#shbody .shpos:active{cursor:grabbing}
+#shbody .shpos h3{cursor:grab;user-select:none}
+#shbody .shpos .shcard{cursor:pointer}
+.sgrip{cursor:grab;color:var(--mut);font-size:12px;user-select:none;flex:none;padding-top:3px}
+.sgrip:active{cursor:grabbing}
+@media print{.sgrip{display:none!important}}
+.fieldwrap{max-width:1280px;margin:0 auto}
+.field{position:relative;display:grid;grid-template-columns:repeat(12,1fr);gap:7px 8px;align-content:start;padding:14px;border-radius:10px;border:2px solid #8fbf88;
+ background:repeating-linear-gradient(180deg,#bcdcb4 0 58px,#b1d3a8 58px 116px);}
+.field::before{content:'';position:absolute;inset:0;pointer-events:none;border-radius:8px;
+ background:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 140' preserveAspectRatio='none'><g fill='none' stroke='rgba(255,255,255,.5)' stroke-width='.45'><line x1='0' y1='70' x2='100' y2='70'/><circle cx='50' cy='70' r='10'/><rect x='30' y='0' width='40' height='11'/><rect x='30' y='129' width='40' height='11'/></g></svg>") center/100% 100% no-repeat}
+.fcard{position:relative;z-index:1;background:#fff;border-radius:6px;box-shadow:0 1px 5px rgba(0,0,0,.22);color:#222;font-family:'Courier New',monospace;overflow:hidden;align-self:start}
+.fpos{font-size:10px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;padding:3px 8px 2px;border-bottom:1.5px solid #d8d8d8;color:#1c2026}
+.fpos span{color:#999;font-weight:400}
+.fply{display:grid;grid-template-columns:minmax(0,1.5fr) 18px minmax(0,1.2fr) 52px 30px 20px;gap:4px;align-items:center;font-size:10px;padding:2px 6px 2px 8px;border-bottom:1px solid #efefef;cursor:pointer;white-space:nowrap}
+.fswap{max-width:20px;font-size:10px;border:1px solid #ddd;border-radius:3px;background:#fff;color:#999;padding:0;cursor:pointer}
+.fswap:hover{color:#9e1b1b;border-color:#9e1b1b}
+.fpen{cursor:pointer;color:#b58900}
+.gswap{max-width:24px;font-size:11px;border:1px solid var(--line);border-radius:4px;background:var(--card);color:var(--mut);padding:0;cursor:pointer}
+.gswap:hover{color:var(--gold);border-color:var(--gold)}
+@media print{.gswap{display:none!important}}
+@media print{.fswap{display:none!important}}
+.fply:hover{background:#f4f8f3}.fply:last-child{border-bottom:none}
+.fnm{color:#9e1b1b;overflow:hidden;text-overflow:ellipsis}
+.fage{color:#333;font-weight:700}
+.ftm{color:#222;overflow:hidden;text-overflow:ellipsis}
+.fctx{font-size:9.5px;color:#666;overflow:hidden}
+.fctx.fct26{background:#d23b3b;color:#fff;border-radius:3px;padding:0 4px;font-weight:700;justify-self:start}
+.fctx.fct27{background:#e07b1f;color:#fff;border-radius:3px;padding:0 4px;font-weight:700;justify-self:start}
+.fpctl{color:#14507a;text-align:right}
+@media print{.field{border-color:#999} .fieldwrap{max-width:none}}
 .shcard{border-top:1px solid var(--line);padding:7px 0;display:flex;gap:8px;cursor:pointer}
 .shcard:hover{background:var(--rowh)}
 .shrank{font-size:15px;font-weight:800;color:var(--mut);width:22px;flex:none}
 .shmain{flex:1;min-width:0}.shname{font-weight:700}.shmeta{color:var(--mut);font-size:11px}
 .shright{text-align:right;flex:none}.shpctl{font-size:17px;font-weight:800;line-height:1}
+.savebox{display:flex;flex-wrap:wrap;gap:10px;align-items:center;background:var(--card);border:1px solid var(--gold);border-radius:8px;padding:8px 12px;margin:6px 0;font-size:12px}
+.savebox label{display:inline-flex;align-items:center;gap:5px;cursor:pointer}
+.savebox input,.savebox select{background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:5px;font-size:12px}
 .shswap{background:var(--card);color:var(--mut);border:1px solid var(--line);border-radius:4px;font-size:11px;padding:0;max-width:30px;cursor:pointer}
 .shswap:hover{color:var(--gold);border-color:var(--gold)}
 @media print{.shswap{display:none!important}}
@@ -165,8 +199,10 @@ const D={"players": [{"nome": "Lucas Paes", "nomeCompleto": "Lucas Paes Souza", 
 const P=D.players,BT=D.benchT,BFS=D.benchFS,BR=D.benchRaw,TK=D.tkeys,FK=D.fkeys;
 const TKCMP=TK.filter(k=>!['Overall','Ofensivo','Passe','Defensivo','Físico (WS)'].includes(k));
 const sel=new Set();let sortKey='Overall',sortDir=-1,cur=null,viewMode='lista',cmpPos='',loadedCmp='',cmpComplete=false;
+let cmpRadarSel=null;  // null = automático (todos até 8); Set de manKeys quando o usuário escolhe quem entra no radar
 const VSEL={};   // sobreposição de jogador do elenco no radar do card, lembrada por posição
 const VSEL2={};  // sobreposição de alvo da Lista no radar do card, lembrada por posição
+let RAVG=localStorage.getItem('jscRadarAvg')!=='0';  // mostrar a Média (Série A) no radar do card
 const esc=s=>(s==null?'':(''+s)).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const norm=s=>(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
 const fnum=v=>v==null?'<span class=muted>—</span>':(typeof v==='number'?v.toFixed(v%1===0?0:2):esc(v));
@@ -406,7 +442,7 @@ function detail(i){cur=i;const p=P[i];
     const scs=P.filter(q=>q.sc&&q.pos===p.pos&&manKey(q)!==manKey(p)&&!isHid(q)&&(q.raw||q.f));
     const tgs=P.filter(q=>!q.sc&&q.pos===p.pos&&manKey(q)!==manKey(p)&&!isHid(q)&&(q.raw||q.f)).sort((a,b)=>(b.tPctl??-1)-(a.tPctl??-1));
     let vsP=null,vsT=null;
-    h+=`<div style="display:flex;justify-content:space-between;align-items:center;gap:6px;margin:4px 0 0;flex-wrap:wrap"><button class="btn ghost" style="padding:2px 8px;font-size:11px" onclick="radarEditor(${i})" title="escolher quais indicadores entram no radar desta posição">⚙ indicadores${RCFG[p.pos]?' <span class=mid>✎</span>':''}</button><span style="display:inline-flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end">`;
+    h+=`<div style="display:flex;justify-content:space-between;align-items:center;gap:6px;margin:4px 0 0;flex-wrap:wrap"><span style="display:inline-flex;gap:8px;align-items:center"><button class="btn ghost" style="padding:2px 8px;font-size:11px" onclick="radarEditor(${i})" title="escolher quais indicadores entram no radar desta posição">⚙ indicadores${RCFG[p.pos]?' <span class=mid>✎</span>':''}</button><label class=muted style="font-size:11px;cursor:pointer;display:inline-flex;align-items:center;gap:3px" title="mostrar/esconder o polígono da média da Série A no radar"><input type=checkbox id=ravgchk${RAVG?' checked':''}> média A</label></span><span style="display:inline-flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end">`;
     if(scs.length){
       const cur=VSEL[p.pos]||'';
       vsP=scs.find(q=>manKey(q)===cur)||null;
@@ -421,7 +457,7 @@ function detail(i){cur=i;const p=P[i];
     const series=[p],scols=['#d32f2f'];
     if(vsP){series.push(vsP);scols.push('#1a1a1a');}
     if(vsT){series.push(vsT);scols.push('#2e7d32');}
-    h+=`<div style="max-width:min(470px,calc(84vh - 285px));margin:0 auto">`+radar54Box(p.pos,series,scols,{avgName:(POSLBL[p.pos]||p.tPos||'')})+`</div>`;
+    h+=`<div style="max-width:min(470px,calc(84vh - 285px));margin:0 auto">`+radar54Box(p.pos,series,scols,{avgName:(POSLBL[p.pos]||p.tPos||''),avg:(RAVG?undefined:false)})+`</div>`;
   }
   if(p.notas){let nr='';if(p.notas.video)nr+=`<div><b>🎥 vídeo:</b> ${esc(p.notas.video)}</div>`;if(p.notas.lesao)nr+=`<div><b>🩹 lesão:</b> ${esc(p.notas.lesao)}</div>`;if(p.notas.ultimo)nr+=`<div><b>📅 último jogo:</b> ${esc(p.notas.ultimo)}</div>`;
     h+=`<div class=sec>📝 Notas de scout</div><div class=notes>${nr}</div>`;}
@@ -446,6 +482,7 @@ function detail(i){cur=i;const p=P[i];
   h+=editForm(p);h+='</div>';document.getElementById('side').innerHTML=h;
   const vv=document.getElementById('vselenco');if(vv)vv.onchange=()=>{VSEL[p.pos]=vv.value;detail(i);};
   const vt=document.getElementById('vsalvo');if(vt)vt.onchange=()=>{VSEL2[p.pos]=vt.value;detail(i);};
+  const ra=document.getElementById('ravgchk');if(ra)ra.onchange=()=>{RAVG=ra.checked;localStorage.setItem('jscRadarAvg',RAVG?'1':'0');detail(i);};
 }
 const PAL=['#f5c518','#4ea3e8','#e3744e','#9d7bea','#3fb950','#e85d8a','#52c4c4','#d9a441'];
 function pcolor(n){return PAL[n%PAL.length];}
@@ -480,9 +517,12 @@ function renderCompare(){updateCmpUI();const host=document.getElementById('cmpbo
   const ps=ids.map(i=>P[i]);const series=getf=>ps.map((p,n)=>({name:p.nome,color:colors[n],get:getf(p)}));
   const tg=(ps.find(p=>p.tPos)||{}).tPos,fg=(ps.find(p=>p.fPos)||{}).fPos;
   const btA=(BT['Brasil A']||{})[tg]||{},btB=(BT['Brasil B']||{})[tg]||{},btC=(BT['Brasil C']||{})[tg]||{},bfA=(BFS['Brasil A']||{})[fg]||{},bfB=(BFS['Brasil B']||{})[fg]||{};
-  const bios=`<div class=cmpbios>`+ps.map((p,n)=>`<div class=cmpbio style="border-top:3px solid ${colors[n]}${p.sc?';background:'+colors[n]+'18':''}"><b>${esc(p.nome)}</b>${(p.manT||p.manF)?' <span class=bm>✎</span>':''}<div class=muted>${esc(p.pos)} · ${p.idade||'?'}a · ${esc(p.time)}</div><div class=muted>${esc(p.div)}${p.prioridade?' · '+esc(p.prioridade):''}${p.mins!=null?' · '+(p.mins<600?'<span class=smp>'+p.mins+' min</span>':p.mins+' min'):''}</div></div>`).join('')+`</div>`;
+  const rsel=cmpRadarSel||new Set(ps.length<=8?ps.map(p=>manKey(p)):[]);
+  const bios=`<div class=cmpbios>`+ps.map((p,n)=>{const inR=rsel.has(manKey(p));
+    return `<div class=cmpbio style="border-top:3px solid ${colors[n]}${p.sc?';background:'+colors[n]+'18':''}${inR?'':';opacity:.55'}"><b>${esc(p.nome)}</b>${(p.manT||p.manF)?' <span class=bm>✎</span>':''}<div class=muted>${esc(p.pos)} · ${p.idade||'?'}a · ${esc(p.time)}</div><div class=muted>${esc(p.div)}${p.prioridade?' · '+esc(p.prioridade):''}${p.mins!=null?' · '+(p.mins<600?'<span class=smp>'+p.mins+' min</span>':p.mins+' min'):''}</div><label style="display:inline-flex;align-items:center;gap:4px;font-size:10.5px;cursor:pointer;margin-top:2px" onclick="event.stopPropagation()"><input type=checkbox data-rch="${esc(manKey(p))}"${inR?' checked':''}> no radar</label></div>`;}).join('')+`</div>`;
   const rcode=cmpPos||ps[0].pos;
-  const radars=ps.length>8?`<div class=rcap style="margin:8px 0">Radar omitido para ${ps.length} jogadores (ficaria ilegível) — veja as tabelas e as barras 0→topA abaixo.</div>`:`<div style="max-width:min(520px,calc(100vh - 440px));margin:0 auto">${radar54Box(rcode,ps,colors,{size:560,avgName:(POSLBL[rcode]||tg||'')})}</div>`;
+  const psR=ps.filter(p=>rsel.has(manKey(p))),colorsR=colors.filter((_,n)=>rsel.has(manKey(ps[n])));
+  const radars=!psR.length?`<div class=rcap style="margin:8px 0">Nenhum jogador no radar — marque <b>"no radar"</b> nos cards acima (até 8).</div>`:(psR.length>8?`<div class=rcap style="margin:8px 0">${psR.length} jogadores no radar ficaria ilegível — desmarque alguns nos cards (máx. 8).</div>`:`<div style="max-width:min(520px,calc(100vh - 440px));margin:0 auto">${radar54Box(rcode,psR,colorsR,{size:560,avgName:(POSLBL[rcode]||tg||'')})}</div>`);
   const NC=ps.length+5;
   const thr=ps.map((p,n)=>`<th class=jth style="${p.sc?('background:'+colors[n]+';color:#fff'):('color:'+colors[n])}" title="${esc(p.nomeCompleto||p.nome)}">${esc(p.nome)}</th>`).join('');
   const headRow=`<thead><tr><th class="l mc">Métrica</th>${thr}<th class=l>faixa 0→topA</th><th>méd A</th><th>méd B</th><th title="média da Série C — liga de destino">méd C</th></tr></thead>`;
@@ -501,7 +541,13 @@ function renderCompare(){updateCmpUI();const host=document.getElementById('cmpbo
       if(cat!==lc){rb+=`<tr><td colspan=${NC} class="l rcat">${esc(cat)}</td></tr>`;lc=cat;}
       rb+=rowFor(k,ps.map(p=>p.raw&&p.raw[k]?p.raw[k].v:null),brA[k],brB[k],brC[k]);cnt++;});
     if(rb)tb+=secrow('Wyscout bruto — '+cnt+' KPIs'+(hid?' · +'+hid+' ocultos (faltam em algum)':'')+' · vs Série A/B Brasil ('+esc(tg||'—')+')')+rb;}
-  host.innerHTML=head+'<div class=cmpscroll>'+bios+radars+'<table class=mt>'+headRow+'<tbody>'+tb+'</tbody></table></div>';
+  host.innerHTML=head+'<div id=cmpsavebox></div><div class=cmpscroll>'+bios+radars+'<table class=mt>'+headRow+'<tbody>'+tb+'</tbody></table></div>';
+  document.querySelectorAll('#cmpbody [data-rch]').forEach(c=>c.onchange=()=>{
+    const cur2=cmpRadarSel||new Set(ps.length<=8?ps.map(p=>manKey(p)):[]);
+    const k=c.dataset.rch;
+    if(c.checked){if(cur2.size>=8){toast('Máximo de 8 jogadores no radar — desmarque outro antes',1);c.checked=false;return;}cur2.add(k);}
+    else cur2.delete(k);
+    cmpRadarSel=cur2;renderCompare();});
   wireCompareHead();}
 const MAN=JSON.parse(localStorage.getItem('jscManual')||'{}');
 function manKey(p){return p.nome+'|'+p.time;}
@@ -538,10 +584,29 @@ function setPos(i,code){const p=P[i];const k=manKey(p);
   localStorage.setItem('jscPos',JSON.stringify(POSOV));applyPosOv();render();detail(i);
   toast('Posição de '+p.nome+': '+p.pos+(POSOV[k]?' (ajustada — salva neste navegador)':' (original restaurada)'));}
 const CMP=JSON.parse(localStorage.getItem('jscCmp')||'{}');
-function saveCmp(){if(!sel.size){toast('Nada selecionado pra gravar',1);return;}
-  const name=(prompt('Nome do comparativo:',loadedCmp||'')||'').trim();if(!name)return;
-  CMP[name]=[...sel].map(i=>manKey(P[i]));localStorage.setItem('jscCmp',JSON.stringify(CMP));loadedCmp=name;
+function doSaveCmp(name){CMP[name]=[...sel].map(i=>manKey(P[i]));localStorage.setItem('jscCmp',JSON.stringify(CMP));loadedCmp=name;
   toast('Comparativo gravado: '+name+' ('+sel.size+' jogadores)');renderCompare();}
+function saveCmp(){if(!sel.size){toast('Nada selecionado pra gravar',1);return;}
+  const names=Object.keys(CMP);
+  if(!names.length){const name=(prompt('Nome do comparativo:','')||'').trim();if(name)doSaveCmp(name);return;}
+  const box=document.getElementById('cmpsavebox');if(!box)return;
+  const overSel=loadedCmp&&CMP[loadedCmp];
+  box.innerHTML=`<div class=savebox>
+   <b>💾 Gravar comparativo (${sel.size} jogadores)</b>
+   <label><input type=radio name=svmode value=new${overSel?'':' checked'}> novo nome: <input id=svname placeholder="ex.: Zagueiros jun/26" style="padding:3px 6px;min-width:170px"></label>
+   <label><input type=radio name=svmode value=over${overSel?' checked':''}> salvar por cima de: <select id=svover>${names.map(n=>`<option${n===loadedCmp?' selected':''}>${esc(n)}</option>`).join('')}</select></label>
+   <span style="display:flex;gap:6px"><button class=btn onclick="confirmSaveCmp()">salvar</button><button class="btn ghost" onclick="document.getElementById('cmpsavebox').innerHTML=''">cancelar</button></span></div>`;
+  const nm=document.getElementById('svname'),ov=document.getElementById('svover');
+  nm.onfocus=()=>{document.querySelector('input[name=svmode][value=new]').checked=true;};
+  ov.onfocus=()=>{document.querySelector('input[name=svmode][value=over]').checked=true;};
+  if(!overSel)nm.focus();}
+function confirmSaveCmp(){const mode=(document.querySelector('input[name=svmode]:checked')||{}).value;
+  let name;
+  if(mode==='over'){name=document.getElementById('svover').value;}
+  else{name=(document.getElementById('svname').value||'').trim();
+    if(!name){toast('Dê um nome pro comparativo',1);return;}
+    if(CMP[name]&&!confirm('Já existe um comparativo "'+name+'" — sobrescrever?'))return;}
+  doSaveCmp(name);}
 function loadCmp(name){const keys=CMP[name];if(!keys)return;sel.clear();let miss=0;
   keys.forEach(k=>{const i=P.findIndex(p=>manKey(p)===k);if(i>=0)sel.add(i);else miss++;});
   cmpPos='';loadedCmp=name;syncSel();toast('Aberto: '+name+(miss?' · '+miss+' não encontrados':''));}
@@ -615,42 +680,168 @@ function addPlayer(){const nome=document.getElementById('np_nome').value.trim();
   const NEW=JSON.parse(localStorage.getItem('jscNew')||'[]');
   NEW.push({nome,nomeCompleto:document.getElementById('np_full').value.trim(),pos,cod:D.aj2cod[pos],tPos:D.aj2t[pos],fPos:D.aj2f[pos],idade:parseInt(document.getElementById('np_idade').value)||null,time,div:document.getElementById('np_div').value.trim(),sit:'',prioridade:'',impacto:'',isNew:true});
   localStorage.setItem('jscNew',JSON.stringify(NEW));MAN[nome+'|'+time]={t,f};localStorage.setItem('jscManual',JSON.stringify(MAN));location.reload();}
-function exportManual(){const data={man:MAN,new:JSON.parse(localStorage.getItem('jscNew')||'[]'),pos:POSOV,cmp:CMP,hide:[...HID],gpos:GPOS,short:SHORT,radar:RCFG,tbl:TBLCFG};const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='jogadores-sc-dados-manuais.json';a.click();}
-function importManual(file){const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(d.man)localStorage.setItem('jscManual',JSON.stringify(d.man));if(d.new)localStorage.setItem('jscNew',JSON.stringify(d.new));if(d.pos)localStorage.setItem('jscPos',JSON.stringify(d.pos));if(d.cmp)localStorage.setItem('jscCmp',JSON.stringify(d.cmp));if(d.hide)localStorage.setItem('jscHide',JSON.stringify(d.hide));if(d.gpos)localStorage.setItem('jscGPos',JSON.stringify(d.gpos));if(d.short)localStorage.setItem('jscShort',JSON.stringify(d.short));if(d.radar)localStorage.setItem('jscRadar',JSON.stringify(d.radar));if(d.tbl)localStorage.setItem('jscTbl',JSON.stringify(d.tbl));location.reload();}catch(e){alert('Arquivo inválido: '+e.message);}};r.readAsText(file);}
+function exportManual(){const data={man:MAN,new:JSON.parse(localStorage.getItem('jscNew')||'[]'),pos:POSOV,cmp:CMP,hide:[...HID],gpos:GPOS,short:SHORT,radar:RCFG,tbl:TBLCFG,shord:SHORD,shlib:SHLIB,gfix:GFIX};const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='jogadores-sc-dados-manuais.json';a.click();}
+function importManual(file){const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(d.man)localStorage.setItem('jscManual',JSON.stringify(d.man));if(d.new)localStorage.setItem('jscNew',JSON.stringify(d.new));if(d.pos)localStorage.setItem('jscPos',JSON.stringify(d.pos));if(d.cmp)localStorage.setItem('jscCmp',JSON.stringify(d.cmp));if(d.hide)localStorage.setItem('jscHide',JSON.stringify(d.hide));if(d.gpos)localStorage.setItem('jscGPos',JSON.stringify(d.gpos));if(d.short)localStorage.setItem('jscShort',JSON.stringify(d.short));if(d.radar)localStorage.setItem('jscRadar',JSON.stringify(d.radar));if(d.tbl)localStorage.setItem('jscTbl',JSON.stringify(d.tbl));if(d.shord)localStorage.setItem('jscShortOrder',JSON.stringify(d.shord));if(d.shlib)localStorage.setItem('jscShortLib',JSON.stringify(d.shlib));if(d.gfix)localStorage.setItem('jscAlertSlots',JSON.stringify(d.gfix));location.reload();}catch(e){alert('Arquivo inválido: '+e.message);}};r.readAsText(file);}
 const POSLBL={GK:'Goleiro',RCB:'Zagueiro (D)',LCB:'Zagueiro (E)',RB:'Lateral direito',LB:'Lateral esquerdo',DM:'Volante',CM:'Meio-campo',AM:'Meia ofensivo',RW:'Extremo direito',LW:'Extremo esquerdo',CF:'Centroavante'};
 const SHORT=JSON.parse(localStorage.getItem('jscShort')||'{}');
+const SHORD=JSON.parse(localStorage.getItem('jscShortOrder')||'[]');
+function shOrder(){const base=Object.entries(D.aj2cod).sort((a,b)=>a[1]-b[1]).map(e=>e[0]);
+  if(!SHORD.length)return base;
+  const seen=new Set(SHORD);return SHORD.filter(c=>base.includes(c)).concat(base.filter(c=>!seen.has(c)));}
 function setShort(pos,slot,key){SHORT[pos]=SHORT[pos]||{};
   if(!key)delete SHORT[pos][slot];else SHORT[pos][slot]=key;
   if(!Object.keys(SHORT[pos]).length)delete SHORT[pos];
   localStorage.setItem('jscShort',JSON.stringify(SHORT));renderShortlist();}
-function renderShortlist(){const host=document.getElementById('shbody');
-  const ORDER=Object.entries(D.aj2cod).sort((a,b)=>a[1]-b[1]).map(e=>e[0]);
+const SHN=4;  // nº de opções (slots) por posição na Shortlist
+function shSlots(pos){const all=P.filter(p=>!p.sc&&p.pos===pos&&!isHid(p));
   const rank=p=>(p.tPctl!=null?p.tPctl:-1);
-  let h=`<div class=cmphead><b>⭐ Shortlist executiva</b><span class=muted style=font-size:12px>top 3 por posição — Prioridade <b>Alta</b> (completa com Média quando falta), ordenado por percentil técnico na liga · <b>⇄ troca o jogador do slot</b> (fica salvo neste navegador; ↩ volta ao automático) · clique no jogador para abrir a análise · 📄 PDF imprime esta tela</span></div><div class=shwrap>`;
-  ORDER.forEach(pos=>{const all=P.filter(p=>!p.sc&&p.pos===pos&&!isHid(p));if(!all.length)return;
-    let pool=all.filter(p=>p.prioridade==='Alta').sort((a,b)=>rank(b)-rank(a));
-    if(pool.length<3)pool=pool.concat(all.filter(p=>!['Alta'].includes(p.prioridade)&&['Média','Media'].includes(p.prioridade)).sort((a,b)=>rank(b)-rank(a)));
-    if(!pool.length)pool=all.slice().sort((a,b)=>rank(b)-rank(a));
-    const ov=SHORT[pos]||{};const used=new Set();
-    const slots=[null,null,null].map((_,s)=>{let pl=null;
-      if(ov[s]){pl=all.find(p=>manKey(p)===ov[s]&&!used.has(manKey(p)))||null;}
-      if(pl)used.add(manKey(pl));return {pl,manual:!!pl&&!!ov[s]};});
-    const auto=pool.filter(p=>!used.has(manKey(p)));let ai=0;
-    slots.forEach(sl=>{if(!sl.pl&&ai<auto.length){sl.pl=auto[ai++];used.add(manKey(sl.pl));}});
-    if(!slots.some(sl=>sl.pl))return;
-    h+=`<div class=shpos><h3>${POSLBL[pos]||pos}<span class=muted style="font-weight:400;text-transform:none;font-size:11px">${all.length} mapeados</span></h3>`;
+  let pool=all.filter(p=>p.prioridade==='Alta').sort((a,b)=>rank(b)-rank(a));
+  if(pool.length<SHN)pool=pool.concat(all.filter(p=>!['Alta'].includes(p.prioridade)&&['Média','Media'].includes(p.prioridade)).sort((a,b)=>rank(b)-rank(a)));
+  if(!pool.length)pool=all.slice().sort((a,b)=>rank(b)-rank(a));
+  const ov=SHORT[pos]||{};const used=new Set();
+  const slots=Array.from({length:SHN},(_,s)=>{let pl=null;
+    if(ov[s]){pl=all.find(p=>manKey(p)===ov[s]&&!used.has(manKey(p)))||null;}
+    if(pl)used.add(manKey(pl));return {pl,manual:!!pl&&!!ov[s]};});
+  const auto=pool.filter(p=>!used.has(manKey(p)));let ai=0;
+  slots.forEach(sl=>{if(!sl.pl&&ai<auto.length){sl.pl=auto[ai++];used.add(manKey(sl.pl));}});
+  return {all,slots};}
+let shView=localStorage.getItem('jscShortView')||'campo';
+function setShView(v){shView=v;localStorage.setItem('jscShortView',v);renderShortlist();}
+// — biblioteca de shortlists salvas (snapshots de jscShort + ordem dos cards) —
+const SHLIB=JSON.parse(localStorage.getItem('jscShortLib')||'{}');
+let loadedShort='';
+function shlibPersist(){localStorage.setItem('jscShortLib',JSON.stringify(SHLIB));}
+function doSaveShortlist(name){SHLIB[name]={short:JSON.parse(JSON.stringify(SHORT)),ord:[...SHORD]};shlibPersist();loadedShort=name;
+  toast('Shortlist gravada: '+name);renderShortlist();}
+function saveShortlistUI(){const box=document.getElementById('shsavebox');if(!box)return;
+  const names=Object.keys(SHLIB);
+  if(!names.length){const name=(prompt('Nome da shortlist:','')||'').trim();if(name)doSaveShortlist(name);return;}
+  const over=loadedShort&&SHLIB[loadedShort];
+  box.innerHTML=`<div class=savebox><b>💾 Gravar shortlist</b>
+   <label><input type=radio name=shsv value=new${over?'':' checked'}> novo nome: <input id=shsvname placeholder="ex.: Janela jul/26" style="padding:3px 6px;min-width:160px"></label>
+   <label><input type=radio name=shsv value=over${over?' checked':''}> salvar por cima de: <select id=shsvover>${names.map(n=>`<option${n===loadedShort?' selected':''}>${esc(n)}</option>`).join('')}</select></label>
+   <span style="display:flex;gap:6px"><button class=btn onclick="confirmSaveShortlist()">salvar</button><button class="btn ghost" onclick="document.getElementById('shsavebox').innerHTML=''">cancelar</button></span></div>`;
+  const nm=document.getElementById('shsvname'),ov=document.getElementById('shsvover');
+  nm.onfocus=()=>{document.querySelector('input[name=shsv][value=new]').checked=true;};
+  ov.onfocus=()=>{document.querySelector('input[name=shsv][value=over]').checked=true;};
+  if(!over)nm.focus();}
+function confirmSaveShortlist(){const mode=(document.querySelector('input[name=shsv]:checked')||{}).value;let name;
+  if(mode==='over')name=document.getElementById('shsvover').value;
+  else{name=(document.getElementById('shsvname').value||'').trim();
+    if(!name){toast('Dê um nome pra shortlist',1);return;}
+    if(SHLIB[name]&&!confirm('Já existe uma shortlist "'+name+'" — sobrescrever?'))return;}
+  doSaveShortlist(name);}
+function loadShortlist(name){const s=SHLIB[name];if(!s)return;
+  if(!confirm('Abrir a shortlist "'+name+'"?\n\nA organização atual (se não foi gravada) será substituída.')){renderShortlist();return;}
+  Object.keys(SHORT).forEach(k=>delete SHORT[k]);Object.assign(SHORT,JSON.parse(JSON.stringify(s.short||{})));
+  SHORD.length=0;SHORD.push(...(s.ord||[]));
+  localStorage.setItem('jscShort',JSON.stringify(SHORT));localStorage.setItem('jscShortOrder',JSON.stringify(SHORD));
+  loadedShort=name;toast('Shortlist aberta: '+name);renderShortlist();}
+function delShortlist(){if(!loadedShort||!SHLIB[loadedShort]){toast('Abra uma shortlist salva (📁) antes de excluir',1);return;}
+  if(!confirm('Excluir a shortlist "'+loadedShort+'"?'))return;
+  delete SHLIB[loadedShort];shlibPersist();toast('Excluída: '+loadedShort);loadedShort='';renderShortlist();}
+function renameShortlist(){if(!loadedShort||!SHLIB[loadedShort])return;
+  const novo=(prompt('Novo nome da shortlist:',loadedShort)||'').trim();if(!novo||novo===loadedShort)return;
+  if(SHLIB[novo]&&!confirm('Já existe "'+novo+'" — sobrescrever?'))return;
+  SHLIB[novo]=SHLIB[loadedShort];delete SHLIB[loadedShort];shlibPersist();loadedShort=novo;toast('Renomeada: '+novo);renderShortlist();}
+function shLibCtl(){const names=Object.keys(SHLIB);
+  return `<span style="display:inline-flex;gap:4px;margin-left:8px;align-items:center"><button class=btn style="padding:3px 10px;font-size:12px" onclick="saveShortlistUI()">💾 gravar</button>${names.length?`<select id=shlibsel title="abrir shortlist salva"><option value="">📁 salvas (${names.length})…</option>${names.map(n=>`<option${n===loadedShort?' selected':''}>${esc(n)}</option>`).join('')}</select>${loadedShort?`<button class="btn ghost" style="padding:3px 8px" onclick="renameShortlist()" title="renomear a shortlist aberta">✏️</button>`:''}<button class="btn ghost" style="padding:3px 8px" onclick="delShortlist()" title="excluir a shortlist aberta">🗑</button>`:''}</span>`;}
+function wireShortLib(){const s=document.getElementById('shlibsel');if(s)s.onchange=()=>{if(s.value)loadShortlist(s.value);};}
+const FPOS={LW:[1,'1 / 5'],CF:[1,'5 / 9'],RW:[1,'9 / 13'],AM:[2,'5 / 9'],CM:[3,'2 / 7'],DM:[3,'7 / 12'],LB:[4,'1 / 4'],LCB:[4,'4 / 7'],RCB:[4,'7 / 10'],RB:[4,'10 / 13'],GK:[5,'5 / 9']};
+function fCt(p){const s=(p.sit||'').replace(/^~?até /,'').replace(/ \(.*\)$/,'').trim();
+  if(!s||s.toLowerCase()==='nan')return '<span class=fctx></span>';
+  let yy=null;const m2=s.match(/20(\d{2})/);if(m2)yy=+m2[1];else{const m3=s.match(/\/(\d{2})(?!\d)/);if(m3)yy=+m3[1];}
+  const cls=yy!=null&&yy<=26?' fct26':(yy===27?' fct27':'');
+  return `<span class="fctx${cls}" title="${esc(p.sit)}">${esc(s.slice(0,10))}</span>`;}
+function renderShortField(){let h='<div class=fieldwrap><div class=field>';
+  Object.entries(FPOS).forEach(([pos,rc])=>{const {all,slots}=shSlots(pos);if(!all.length||!slots.some(sl=>sl.pl))return;
+    const usedK=new Set(slots.filter(sl=>sl.pl).map(sl=>manKey(sl.pl)));
+    h+=`<div class=fcard style="grid-row:${rc[0]};grid-column:${rc[1]}"><div class=fpos>— ${esc(POSLBL[pos]||pos)} <span>(${all.length})</span></div>`;
     slots.forEach((sl,n)=>{const p=sl.pl;if(!p)return;
-      const cands=all.filter(q=>!used.has(manKey(q)));
+      const cands=all.filter(q=>!usedK.has(manKey(q)));
+      const swap=`<select class=fswap data-spos="${pos}" data-slot="${n}" onclick="event.stopPropagation()" title="trocar o jogador deste slot"><option value="">⇄</option>${sl.manual?'<option value="__auto">↩ automático</option>':''}${cands.map(q=>`<option value="${esc(manKey(q))}">${esc(q.nome)} · pctl ${q.tPctl??'—'}${q.prioridade?' · '+esc(q.prioridade):''}</option>`).join('')}</select>`;
+      h+=`<div class=fply draggable=true data-fpos="${pos}" data-fkey="${esc(manKey(p))}" onclick="openFromShort(${P.indexOf(p)})" title="${esc(p.time)} · ${esc(p.div)}${p.sit?' · '+esc(p.sit):''}${p.possib?' · possibilidade: '+esc(p.possib):''}${p.impacto?' · impacto: '+esc(p.impacto):''} — arraste pra reordenar">
+       <b class=fnm>${esc(p.nome)}${sl.manual?' <span class=fpen title="escolha manual — clique pra trocar">✎</span>':''}</b><span class=fage>${p.idade||'?'}</span><span class=ftm>${esc(p.time)}</span>${fCt(p)}<b class=fpctl>${p.tPctl!=null?'#'+p.tPctl:'–'}</b>${swap}</div>`;});
+    h+='</div>';});
+  return h+'</div></div>';}
+function wireShortField(){
+  document.querySelectorAll('#shbody .fswap').forEach(s=>s.onchange=()=>{const v=s.value;if(!v)return;setShort(s.dataset.spos,+s.dataset.slot,v==='__auto'?null:v);});
+  document.querySelectorAll('#shbody .fpen').forEach(pen=>pen.onclick=e=>{e.stopPropagation();const s=pen.closest('.fply').querySelector('.fswap');if(s){try{s.showPicker();}catch(_){s.focus();}}});
+  let fdrag=null;
+  document.querySelectorAll('#shbody .fply').forEach(row=>{
+    row.ondragstart=e=>{if(e.target.closest&&e.target.closest('select')){e.preventDefault();return;}
+      fdrag={pos:row.dataset.fpos,key:row.dataset.fkey};e.dataTransfer.effectAllowed='move';try{e.dataTransfer.setData('text/plain',row.dataset.fkey);}catch(_){}row.style.opacity='.4';};
+    row.ondragend=()=>{row.style.opacity='';document.querySelectorAll('#shbody .fply').forEach(r=>r.style.outline='');};
+    row.ondragover=e=>{e.preventDefault();e.dataTransfer.dropEffect='move';
+      if(fdrag&&row.dataset.fpos===fdrag.pos&&row.dataset.fkey!==fdrag.key)row.style.outline='2px dashed #b58900';};
+    row.ondragleave=()=>{row.style.outline='';};
+    row.ondrop=e=>{e.preventDefault();
+      if(!fdrag||row.dataset.fpos!==fdrag.pos||row.dataset.fkey===fdrag.key){fdrag=null;return;}
+      const card=row.closest('.fcard');const keys=[...card.querySelectorAll('.fply')].map(r=>r.dataset.fkey);
+      const from=keys.indexOf(fdrag.key),to=keys.indexOf(row.dataset.fkey);
+      keys.splice(to,0,keys.splice(from,1)[0]);
+      SHORT[fdrag.pos]={};keys.forEach((k,i2)=>{SHORT[fdrag.pos][i2]=k;});
+      localStorage.setItem('jscShort',JSON.stringify(SHORT));fdrag=null;renderShortlist();};
+  });}
+function renderShortlist(){try{renderShortlistInner();}catch(e){
+  const host=document.getElementById('shbody');
+  host.innerHTML=`<div class=panel style=position:static><div class=flag>⚠ Erro ao montar a Shortlist: ${esc(e.message)}</div><pre style="font-size:10px;color:var(--mut);white-space:pre-wrap">${esc((e.stack||'').split('\n').slice(0,4).join('\n'))}</pre><button class=btn onclick="['jscShort','jscShortOrder','jscShortLib','jscShortView'].forEach(k=>localStorage.removeItem(k));location.reload()">🧹 limpar ajustes da Shortlist deste navegador e recarregar</button></div>`;}}
+function renderShortlistInner(){const host=document.getElementById('shbody');
+  const ORDER=shOrder();
+  const tog=`<span style="display:inline-flex;gap:4px;margin-left:8px"><button class="posb${shView==='campo'?' on':''}" onclick="setShView('campo')">⚽ campo</button><button class="posb${shView==='cards'?' on':''}" onclick="setShView('cards')">📋 cards</button></span>`;
+  if(shView==='campo'){
+    host.innerHTML=`<div class=cmphead><b>⭐ Shortlist executiva</b>${tog}${shLibCtl()}<span class=muted style=font-size:12px>top 4 por posição · pctl técnico na liga · <b>⇄ troca o jogador do slot</b> (↩ volta ao automático) · <b>arraste a linha</b> pra reordenar dentro da posição · clique no jogador para abrir · 📄 PDF imprime o campo</span></div><div id=shsavebox></div>`+renderShortField();
+    wireShortField();wireShortLib();
+    return;}
+  let h=`<div class=cmphead><b>⭐ Shortlist executiva</b>${tog}${shLibCtl()}<span class=muted style=font-size:12px>top 4 por posição — Prioridade <b>Alta</b> (completa com Média quando falta), ordenado por percentil técnico na liga · <b>⇄ troca o jogador do slot</b> (fica salvo neste navegador; ↩ volta ao automático) · <b>arraste o card pelo título</b> pra reordenar as posições, ou o jogador pelo ⠿ pra trocar a ordem · clique no jogador para abrir a análise · 📄 PDF imprime esta tela</span></div><div id=shsavebox></div><div class=shwrap>`;
+  ORDER.forEach(pos=>{const {all,slots}=shSlots(pos);if(!all.length)return;
+    if(!slots.some(sl=>sl.pl))return;
+    const usedK=new Set(slots.filter(sl=>sl.pl).map(sl=>manKey(sl.pl)));
+    h+=`<div class=shpos draggable=true data-spos2="${pos}" title="arraste pra reordenar os cards"><h3 class=shdrag>${POSLBL[pos]||pos}<span class=muted style="font-weight:400;text-transform:none;font-size:11px">${all.length} mapeados</span></h3>`;
+    slots.forEach((sl,n)=>{const p=sl.pl;if(!p)return;
+      const cands=all.filter(q=>!usedK.has(manKey(q)));
       const swap=`<select class=shswap data-spos="${pos}" data-slot="${n}" onclick="event.stopPropagation()" title="trocar o jogador deste slot (fica salvo neste navegador)"><option value="">⇄</option>${sl.manual?'<option value="__auto">↩ automático</option>':''}${cands.map(q=>`<option value="${esc(manKey(q))}">${esc(q.nome)} · pctl ${q.tPctl??'—'}${q.prioridade?' · '+esc(q.prioridade):''}</option>`).join('')}</select>`;
-      h+=`<div class=shcard onclick="openFromShort(${P.indexOf(p)})">
-      <span class=shrank>${n+1}º</span>
+      h+=`<div class=shcard draggable=true data-skey="${esc(manKey(p))}" onclick="openFromShort(${P.indexOf(p)})">
+      <span class=sgrip title="arraste pra trocar a ordem dentro da posição">⠿</span><span class=shrank>${n+1}º</span>
       <div class=shmain><div class=shname>${esc(p.nome)} <small class=muted>${p.idade||'?'}a</small>${sl.manual?' <span class=mid title="escolhido manualmente neste slot">✎</span>':''}${p.prioridade&&p.prioridade!=='Alta'?` <small class=${p.prioridade==='Baixa'?'lo':'mid'} title="prioridade do scout">${esc(p.prioridade)}</small>`:''}</div>
        <div class=shmeta>${esc(p.time)} · ${esc(p.div)}${p.sit?' · '+esc(p.sit):''}</div>
        <div class=shmeta>${p.possib?'possibilidade: '+esc(p.possib):''}${p.possib&&p.impacto?' · ':''}${p.impacto?'impacto: '+esc(p.impacto):''}${p.mins!=null&&p.mins<600?' · <span class=smp>'+p.mins+' min</span>':''}</div></div>
       <div class=shright><div style="display:flex;gap:4px;align-items:center;justify-content:flex-end"><div class=shpctl>${p.tPctl??'—'}</div>${swap}</div><div class=shmeta>pctl liga</div>${summ(p)}</div></div>`;});
     h+='</div>';});
   host.innerHTML=h+'</div>';
-  document.querySelectorAll('#shbody .shswap').forEach(s=>s.onchange=()=>{const v=s.value;if(!v)return;setShort(s.dataset.spos,+s.dataset.slot,v==='__auto'?null:v);});}
+  wireShortLib();
+  document.querySelectorAll('#shbody .shswap').forEach(s=>s.onchange=()=>{const v=s.value;if(!v)return;setShort(s.dataset.spos,+s.dataset.slot,v==='__auto'?null:v);});
+  let dragPos=null,dragPly=null;
+  const clearHl=()=>{document.querySelectorAll('#shbody .shpos').forEach(c=>c.style.outline='');document.querySelectorAll('#shbody .shcard').forEach(c=>{c.style.outline='';c.style.opacity='';});};
+  document.querySelectorAll('#shbody .shpos').forEach(card=>{
+    card.ondragstart=e=>{if(e.target.closest&&e.target.closest('select,button,input')){e.preventDefault();return;}
+      const sc=e.target.closest&&e.target.closest('.shcard');
+      if(sc){dragPly={pos:card.dataset.spos2,key:sc.dataset.skey};dragPos=null;
+        e.dataTransfer.effectAllowed='move';try{e.dataTransfer.setData('text/plain',sc.dataset.skey);}catch(_){}
+        sc.style.opacity='.35';e.stopPropagation();return;}
+      dragPly=null;dragPos=card.dataset.spos2;e.dataTransfer.effectAllowed='move';try{e.dataTransfer.setData('text/plain',dragPos);}catch(_){}card.style.opacity='.35';};
+    card.ondragend=()=>{card.style.opacity='';clearHl();dragPos=null;dragPly=null;};
+    card.ondragover=e=>{e.preventDefault();e.dataTransfer.dropEffect='move';
+      if(dragPly){const sc=e.target.closest&&e.target.closest('.shcard');
+        document.querySelectorAll('#shbody .shcard').forEach(c=>{if(c.dataset.skey!==dragPly.key)c.style.outline='';});
+        if(sc&&card.dataset.spos2===dragPly.pos&&sc.dataset.skey!==dragPly.key)sc.style.outline='2px dashed var(--gold)';return;}
+      if(dragPos&&card.dataset.spos2!==dragPos)card.style.outline='2px dashed var(--gold)';};
+    card.ondragleave=()=>{if(!dragPly)card.style.outline='';};
+    card.ondrop=e=>{e.preventDefault();
+      if(dragPly){const sc=e.target.closest&&e.target.closest('.shcard');
+        if(!sc||card.dataset.spos2!==dragPly.pos||sc.dataset.skey===dragPly.key){clearHl();dragPly=null;return;}
+        const keys=[...card.querySelectorAll('.shcard')].map(c=>c.dataset.skey);
+        const from=keys.indexOf(dragPly.key),to=keys.indexOf(sc.dataset.skey);
+        keys.splice(to,0,keys.splice(from,1)[0]);
+        SHORT[card.dataset.spos2]={};keys.forEach((k,i2)=>{SHORT[card.dataset.spos2][i2]=k;});
+        localStorage.setItem('jscShort',JSON.stringify(SHORT));
+        dragPly=null;renderShortlist();return;}
+      const tgt=card.dataset.spos2;if(!dragPos||tgt===dragPos)return;
+      const ord=shOrder();const from=ord.indexOf(dragPos),to=ord.indexOf(tgt);
+      ord.splice(to,0,ord.splice(from,1)[0]);
+      SHORD.length=0;SHORD.push(...ord);localStorage.setItem('jscShortOrder',JSON.stringify(SHORD));
+      dragPos=null;renderShortlist();};
+  });}
 function openFromShort(i){showTab('lista');detail(i);const tr=document.querySelector(`tr[data-i="${i}"]`);if(tr)tr.scrollIntoView({block:'center'});}
 function dossier(i){const p=P[i];
   const fact=(l,v)=>`<div class=dfact><b>${l}</b><span>${v||'—'}</span></div>`;
@@ -718,6 +909,11 @@ function renderGarimpo(){const host=document.getElementById('gbody');
  gList();}
 const GPOS=JSON.parse(localStorage.getItem('jscGPos')||'{}');
 const gPos=c=>GPOS[c.pk]||c.g;
+const GFIX=JSON.parse(localStorage.getItem('jscAlertSlots')||'{}');  // {pos:{slot:pk}} — slots fixados nos destaques
+function setGFix(pos,slot,pk){GFIX[pos]=GFIX[pos]||{};
+ if(!pk)delete GFIX[pos][slot];else GFIX[pos][slot]=pk;
+ if(!Object.keys(GFIX[pos]).length)delete GFIX[pos];
+ localStorage.setItem('jscAlertSlots',JSON.stringify(GFIX));gList();}
 function setGPos(gi,code){const c=D.garimpo[gi];if(!c)return;
  if(!code||code===c.g)delete GPOS[c.pk];else GPOS[c.pk]=code;
  localStorage.setItem('jscGPos',JSON.stringify(GPOS));gList();
@@ -740,11 +936,19 @@ function gList(){if(!gInit||!document.getElementById('gcount'))return;
   const ORDER=Object.entries(D.aj2cod).sort((a,b)=>a[1]-b[1]).map(e=>e[0]);
   h+='<div class=shwrap style=margin-bottom:12px>';
   ORDER.forEach(pos=>{const inpos=cs.filter(c=>gPos(c)===pos);if(!inpos.length)return;
-   const lim=gMore[pos]||3;const top=inpos.slice(0,lim);
-   h+=`<div class=shpos><h3>${POSLBL[pos]||pos}<span class=muted style="font-weight:400;text-transform:none;font-size:11px">${inpos.length} no filtro</span></h3>`;
-   top.forEach((c,n)=>{h+=gCard(c,n);});
-   if(inpos.length>lim)h+=`<div style="text-align:center;border-top:1px solid var(--line);padding-top:5px"><button class="btn ghost" style="padding:1px 10px;font-size:11px" data-gmore="${pos}">▾ ver mais (${inpos.length-lim})</button></div>`;
-   else if(lim>3)h+=`<div style="text-align:center;border-top:1px solid var(--line);padding-top:5px"><button class="btn ghost" style="padding:1px 10px;font-size:11px" data-gless="${pos}">▴ mostrar só o top 3</button></div>`;
+   const lim=gMore[pos]||3;
+   const fix=GFIX[pos]||{};const used=new Set();const slots=[];
+   for(let s=0;s<lim;s++){let c=null;
+     if(fix[s]!=null){c=inpos.find(x=>x.pk===fix[s]&&!used.has(x.pk))||null;}
+     slots.push({c,manual:!!c});if(c)used.add(c.pk);}
+   const auto=inpos.filter(x=>!used.has(x.pk));let ai=0;
+   slots.forEach(sl=>{if(!sl.c&&ai<auto.length){sl.c=auto[ai++];used.add(sl.c.pk);}});
+   const shown=slots.filter(sl=>sl.c);
+   h+=`<div class=shpos data-gposcard="${pos}"><h3>${POSLBL[pos]||pos}<span class=muted style="font-weight:400;text-transform:none;font-size:11px">${inpos.length} no filtro</span></h3>`;
+   shown.forEach((sl,n)=>{h+=gCard(sl.c,n,pos,sl.manual,inpos.filter(x=>!used.has(x.pk)||x.pk===sl.c.pk));});
+   const more=inpos.length>lim?`<button class="btn ghost" style="padding:1px 10px;font-size:11px" data-gmore="${pos}">▾ ver mais (${inpos.length-shown.length})</button>`:'';
+   const less=lim>3?`<button class="btn ghost" style="padding:1px 10px;font-size:11px" data-gless="${pos}">▴ recolher</button>`:'';
+   if(more||less)h+=`<div style="display:flex;gap:6px;justify-content:center;border-top:1px solid var(--line);padding-top:5px">${more}${less}</div>`;
    h+='</div>';});
   h+='</div><div class=sec>Todos os candidatos</div>';}
  h+=gTable(cs.slice(0,400));
@@ -753,9 +957,28 @@ function gList(){if(!gInit||!document.getElementById('gcount'))return;
  document.querySelectorAll('#glist [data-gadd]').forEach(b=>b.onclick=e=>{e.stopPropagation();addGarimpo(+b.dataset.gadd);});
  document.querySelectorAll('#glist [data-gps]').forEach(s=>s.onchange=()=>setGPos(+s.dataset.gps,s.value));
  document.querySelectorAll('#glist [data-gmore]').forEach(b=>b.onclick=()=>{const k=b.dataset.gmore;gMore[k]=(gMore[k]||3)+5;gList();});
- document.querySelectorAll('#glist [data-gless]').forEach(b=>b.onclick=()=>{delete gMore[b.dataset.gless];gList();});}
-function gCard(c,n){const din=GADD.has(c.pk);
- return `<div class=shcard${din?' style="opacity:.55"':''}><span class=shrank>${n+1}º</span><div class=shmain><div class=shname>${esc(c.n)} <small class=muted>${c.id||'?'}a</small>${isBR(c)?' 🇧🇷':''}${GPOS[c.pk]?` <span class=mid title="posição ajustada (original: ${c.g}) — troque na tabela abaixo">✎</span>`:''}</div><div class=shmeta>${esc(c.tm)} · ${esc(c.lg)}${c.ct?' · até '+c.ct:''}</div><div class=shmeta>${gMoney(c.mv)} · ${c.j??'—'} j · ${c.m} min · pctl ${c.pct??'—'}</div></div><div class=shright><div class=shpctl>${fmtOv(c)}</div><div class=shmeta>Overall</div>${gBtn(c)}</div></div>`;}
+ document.querySelectorAll('#glist [data-gless]').forEach(b=>b.onclick=()=>{delete gMore[b.dataset.gless];gList();});
+ document.querySelectorAll('#glist [data-gsw]').forEach(s=>s.onchange=()=>{const v=s.value;if(!v)return;setGFix(s.dataset.gsw,+s.dataset.gslot,v==='__auto'?null:v);});
+ let gdrag=null;
+ document.querySelectorAll('#glist .shcard[data-gkey]').forEach(row=>{
+  row.ondragstart=e=>{if(e.target.closest&&e.target.closest('select,button')){e.preventDefault();return;}
+   gdrag={pos:row.dataset.gposc,key:row.dataset.gkey};e.dataTransfer.effectAllowed='move';try{e.dataTransfer.setData('text/plain',row.dataset.gkey);}catch(_){}row.style.opacity='.35';};
+  row.ondragend=()=>{row.style.opacity='';document.querySelectorAll('#glist .shcard').forEach(r=>r.style.outline='');};
+  row.ondragover=e=>{e.preventDefault();e.dataTransfer.dropEffect='move';
+   if(gdrag&&row.dataset.gposc===gdrag.pos&&row.dataset.gkey!==gdrag.key)row.style.outline='2px dashed var(--gold)';};
+  row.ondragleave=()=>{row.style.outline='';};
+  row.ondrop=e=>{e.preventDefault();
+   if(!gdrag||row.dataset.gposc!==gdrag.pos||row.dataset.gkey===gdrag.key){gdrag=null;return;}
+   const card=row.closest('.shpos');const keys=[...card.querySelectorAll('.shcard[data-gkey]')].map(r=>r.dataset.gkey);
+   const from=keys.indexOf(gdrag.key),to=keys.indexOf(row.dataset.gkey);
+   keys.splice(to,0,keys.splice(from,1)[0]);
+   GFIX[gdrag.pos]={};keys.forEach((k,i2)=>{GFIX[gdrag.pos][i2]=k;});
+   localStorage.setItem('jscAlertSlots',JSON.stringify(GFIX));gdrag=null;gList();};
+ });}
+function gCard(c,n,pos,manual,cands){const din=GADD.has(c.pk);
+ const others=(cands||[]).filter(x=>x.pk!==c.pk);
+ const swap=`<select class=gswap data-gsw="${esc(pos)}" data-gslot="${n}" onclick="event.stopPropagation()" title="escolher o candidato deste slot (lista respeita os filtros ativos)"><option value="">⇄</option>${manual?'<option value="__auto">↩ automático</option>':''}${others.map(x=>`<option value="${esc(x.pk)}">${esc(x.n)} · ${esc(x.tm)} · ${fnum(x.ov)}</option>`).join('')}</select>`;
+ return `<div class=shcard draggable=true data-gkey="${esc(c.pk)}" data-gposc="${esc(pos)}"${din?' style="opacity:.55"':''}><span class=sgrip title="arraste pra trocar a ordem">⠿</span><span class=shrank>${n+1}º${manual?' <span class=mid title="fixado manualmente neste slot">✎</span>':''}</span><div class=shmain><div class=shname>${esc(c.n)} <small class=muted>${c.id||'?'}a</small>${isBR(c)?' 🇧🇷':''}${GPOS[c.pk]?` <span class=mid title="posição ajustada (original: ${c.g}) — troque na tabela abaixo">✎</span>`:''}</div><div class=shmeta>${esc(c.tm)} · ${esc(c.lg)}${c.ct?' · até '+c.ct:''}</div><div class=shmeta>${gMoney(c.mv)} · ${c.j??'—'} j · ${c.m} min · pctl ${c.pct??'—'}</div></div><div class=shright><div class=shpctl>${fmtOv(c)}</div><div class=shmeta>Overall</div><span style="display:inline-flex;gap:3px">${gBtn(c)}${swap}</span></div></div>`;}
 function gTable(cs){let h=`<div class=tablewrap style=max-height:68vh><table><thead><tr><th class=l>Pos</th><th class=l>Jogador</th><th>Id</th><th class=l>Time</th><th class=l>Liga</th><th class=l>Contrato</th><th>Valor</th><th>Jog</th><th>Min</th><th>Ovr</th><th>Ofe</th><th>Def</th><th>Pas</th><th>Pctl</th><th></th></tr></thead><tbody>`;
  const _codes=Object.keys(D.aj2cod);
  cs.forEach(c=>{const din=GADD.has(c.pk);const gi=D.garimpo.indexOf(c);
